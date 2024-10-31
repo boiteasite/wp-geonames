@@ -440,16 +440,40 @@ function wpGeonames_admin_check() {
 	global $wpdb;
 	$country = wpGeonames_get_country();
 	$postalCountry = wpGeonames_get_country(1);
-	$Gcountry = (!empty($_GET['country'])?sanitize_text_field($_GET['country']):'');
-	$Gregion = (!empty($_GET['region'])?sanitize_text_field($_GET['region']):'');
-	$Gcityid = (!empty($_GET['cityid'])?sanitize_text_field($_GET['cityid']):'');
-	$Gpostal = (!empty($_GET['postal'])?sanitize_text_field($_GET['postal']):'');
-	//
 	$geoToka = wp_create_nonce('geoToka');
-	if($Gcountry) {
-		if(isset($_GET['cityid'])) $region = wpGeonames_get_region_by_country($Gcountry);
-		else if(isset($_GET['postal'])) $outPostal = wpGeonames_get_postalCheck($Gcountry,$Gpostal);
+	// Country - 2 Uppercase letters (US, FR...)
+	if(!empty($_GET['country']) && ctype_alpha($_GET['country'])) {
+		$Gcountry = substr($_GET['country'],0,2);
+		$Gcountry = sanitize_text_field($Gcountry);
 	}
+	else $Gcountry = '';
+	// Region - INT id
+	if(!empty($_GET['region']) && ctype_digit($_GET['region'])) {
+		$Gregion = intval($_GET['region']);
+		$Gregion = sanitize_text_field($Gregion);
+	}
+	else $Gregion ='';
+	// Cityid - INT id
+	if(!empty($_GET['cityid']) && ctype_digit($_GET['cityid'])) {
+		$Gcityid = intval($_GET['cityid']);
+		$Gcityid = sanitize_text_field($Gcityid);
+	}
+	else $Gcityid = '';
+	// Country2 - 2 Uppercase letters (US, FR...)
+	if(!empty($_GET['country2']) && ctype_alpha($_GET['country2'])) {
+		$Gcountry2 = substr($_GET['country2'],0,2);
+		$Gcountry2 = sanitize_text_field($Gcountry2);
+	}
+	else $Gcountry2 = '';
+	// Postal - INT
+	if(!empty($_GET['postal']) && ctype_digit($_GET['postal'])) {
+		$Gpostal = intval($_GET['postal']);
+		$Gpostal = sanitize_text_field($Gpostal);
+	}
+	else $Gpostal = '';
+	//
+	if($Gcountry && isset($_GET['cityid'])) $region = wpGeonames_get_region_by_country($Gcountry);
+	if($Gcountry2 && isset($_GET['postal'])) $outPostal = wpGeonames_get_postalCheck($Gcountry2,$Gpostal);
 	?>
 	<style>
 	.wpgeoCity span{color:#555;font-weight:400;width:auto;}
@@ -500,9 +524,9 @@ function wpGeonames_admin_check() {
 		<input type="hidden" name="geoToka" value="<?php echo $geoToka; ?>" />
 		<div style="float:left;width:48%;overflow:hidden;">
 			<label><?php _e('Country','wpGeonames') ?></label><br />
-			<select name="country">
+			<select name="country2">
 				<option value=""> - </option>
-			<?php foreach($postalCountry as $r) echo '<option value="'.$r->country_code.'" '.(($Gcountry==$r->country_code)?'selected':'').'>'.$r->name.'</option>'; ?>
+			<?php foreach($postalCountry as $r) echo '<option value="'.$r->country_code.'" '.(($Gcountry2==$r->country_code)?'selected':'').'>'.$r->name.'</option>'; ?>
 			
 			</select>
 		</div>
@@ -531,7 +555,7 @@ function wpGeonames_admin_check() {
 					var r=jQuery.parseJSON(data.substring(0,data.length-1));
 					jQuery('#geoListCity').empty();
 					jQuery.each(r,function(k,v){
-						jQuery('#geoListCity').append('<div class="wpgeoCity"><span onClick="document.forms[\'geoCheck\'].elements[\'country\'].value=\'<?php echo $_GET['country']; ?>\';document.forms[\'geoCheck\'].elements[\'region\'].value=\'<?php echo $_GET['region']; ?>\';document.forms[\'geoCheck\'].elements[\'cityid\'].value=\''+v.geonameid+'\';document.forms[\'geoCheck\'].submit();">'+v.name+'</span></div>');
+						jQuery('#geoListCity').append('<div class="wpgeoCity"><span onClick="document.forms[\'geoCheck\'].elements[\'country\'].value=\'<?php echo $Gcountry; ?>\';document.forms[\'geoCheck\'].elements[\'region\'].value=\'<?php echo $Gregion; ?>\';document.forms[\'geoCheck\'].elements[\'cityid\'].value=\''+v.geonameid+'\';document.forms[\'geoCheck\'].submit();">'+v.name+'</span></div>');
 					});
 				});
 			}
@@ -567,23 +591,40 @@ function wpGeonames_admin_check() {
 }
 function wpGeonames_admin_edit() {
 	global $wpdb;
-	$GgeoType = (!empty($_GET['geoType'])?preg_replace("/[^a-zA-Z0-9_,-]/","", $_GET['geoType']):'');
 	$geoToka = wp_create_nonce('geoToka');
 	$o = '';
-	if(!empty($_GET['geoid']) && !empty($_GET['geodata'])) {
-		$geodata = stripslashes(strip_tags($_GET['geodata']));
-		$id = intval($_GET['geoid']);
-		$wpdb->update($wpdb->base_prefix.'geonames', array('name'=>$geodata), array('geonameid'=>$id));
+	// geotype - 'city' or 'region'
+	if(!empty($_GET['geoType']) && $_GET['geoType']==='city') $GgeoType = 'city';
+	else $GgeoType = 'region';
+	// geoid - INT id
+	if(!empty($_GET['geoid']) && ctype_digit($_GET['geoid'])) {
+		$Ggeoid = intval($_GET['geoid']);
+		$Ggeoid = sanitize_text_field($Ggeoid);
+	}
+	else $Ggeoid = '';
+	// geodata - Words
+	if(!empty($_GET['geodata'])) {
+		$Ggeodata = sanitize_text_field($_GET['geodata']);
+		$Ggeodata = preg_replace("/\s+/", " ",$Ggeodata); // multiple spaces & lines break
+		$n = array('"','(',')','{','}','[',']','<','>','|','+','=','?',';','`','*');
+		$Ggeodata = str_replace($n,"",$Ggeodata); // remove char
+	}
+	else $Ggeodata = '';
+	// geosearch - Words
+	if(!empty($_GET['geoSearch'])) {
+		$GgeoSearch = sanitize_text_field($_GET['geoSearch']);
+		$GgeoSearch = preg_replace("/\s+/", " ",$GgeoSearch); // multiple spaces & lines break
+		$n = array('"','(',')','{','}','[',']','<','>','|','+','=','?',';','`','*');
+		$GgeoSearch = str_replace($n,"",$GgeoSearch); // remove char
+	}
+	else $GgeoSearch = '';
+	//
+	if($Ggeoid && $Ggeodata) {
+		$wpdb->update($wpdb->base_prefix.'geonames', array('name'=>stripslashes($Ggeodata)), array('geonameid'=>$Ggeoid));
 		echo '<script>window.location.replace("options-general.php?page=wpGeonames-options&geotab=edit");</script>';
 		exit;
 	}
-	else if(!empty($_GET['geoSearch'])) {
-		// Sanitize $_GET['geoSearch']
-		$geoSearch = sanitize_text_field($_GET['geoSearch']);
-		$geoSearch = preg_replace("/\s+/", " ",$geoSearch); // multiple spaces & lines break
-		$n = array('"','(',')','{','}','[',']','<','>','|','+','=','?',';','`','*');
-		$geoSearch = str_replace($n,"",$geoSearch);
-		//
+	else if($GgeoSearch) {
 		$o = '<hr />'; $w = '';
 		if($GgeoType=='region') $w = "and feature_class='A' and feature_code IN ('ADM1','ADM2','PCLD')";
 		else if($GgeoType=='city') $w = "and feature_class='P'";
@@ -594,7 +635,7 @@ function wpGeonames_admin_edit() {
 			FROM
 				".$wpdb->base_prefix."geonames
 			WHERE
-				name LIKE '%".$geoSearch."%'
+				name LIKE '%".$GgeoSearch."%'
 				".$w);
 		if(!empty($q)) {
 			foreach($q as $v) {
@@ -623,7 +664,7 @@ function wpGeonames_admin_edit() {
 		</div>
 		<div style="float:left;margin-right:20px;overflow:hidden;">
 			<label><?php _e('Data','wpGeonames') ?></label><br />
-			<input type="text" name="geoSearch" value="<?php if(!empty($geoSearch)) echo $geoSearch; ?>" />
+			<input type="text" name="geoSearch" value="<?php if(!empty($GgeoSearch)) echo esc_html($GgeoSearch); ?>" />
 		</div>
 		<div class="submit">
 			<input type="submit" class="button-primary" onClick="document.forms['geoEdit'].elements['geodata'].value='';document.forms['geoEdit'].elements['geoid'].value='';" value="<?php _e('Search','wpGeonames') ?>" />

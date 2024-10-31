@@ -5,11 +5,11 @@ Author: Jacques Malgrange
 Text Domain: wpGeonames
 Domain Path: /lang
 Description: Allows you to insert all or part of the global GeoNames database in your WordPress base.
-Version: 1.9
+Version: 1.9.0.1
 Author URI: https://www.boiteasite.fr
 */
 $a = __('Allows you to insert all or part of the global GeoNames database in your WordPress base.','wpGeonames'); // Description
-$geoVersion = "1.9";
+$geoVersion = "1.9.0.1";
 //
 register_activation_hook( __FILE__, 'wpGeonames_creation_table');
 //
