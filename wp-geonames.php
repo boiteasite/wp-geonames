@@ -5,13 +5,19 @@ Author: Jacques Malgrange
 Text Domain: wpGeonames
 Domain Path: /lang
 Description: Allows you to insert all or part of the global GeoNames database in your WordPress base.
-Version: 1.9.0.1
+Version: 1.9.1
 Author URI: https://www.boiteasite.fr
 */
 $a = __('Allows you to insert all or part of the global GeoNames database in your WordPress base.','wpGeonames'); // Description
-$geoVersion = "1.9.0.1";
+$geoVersion = "1.9.1";
 //
 register_activation_hook( __FILE__, 'wpGeonames_creation_table');
+// LANG (WP 6.7)
+$geoWPLANG = get_site_option('WPLANG'); // WordPress lang (Dashboard/Settings/General/site language => options table WPLANG) - Can be empty or not exists
+if(empty($geoWPLANG)) $geoWPLANG = get_locale();
+if(!empty(WP_LANG_DIR) && file_exists(WP_LANG_DIR.'/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', WP_LANG_DIR.'/wpGeonames-'.$geoWPLANG.'.mo');
+else if(file_exists(WP_CONTENT_DIR.'/languages/plugins/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', WP_CONTENT_DIR.'/languages/plugins/wpGeonames-'.$geoWPLANG.'.mo');
+else if(file_exists(dirname(__FILE__).'/lang/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', dirname(__FILE__).'/lang/wpGeonames-'.$geoWPLANG.'.mo');
 //
 add_shortcode('wp-geonames', 'wpGeonames_shortcode');
 add_action('wp_ajax_nopriv_geoDataRegion', 'wpGeonames_ajax_geoDataRegion');
@@ -90,7 +96,7 @@ function wpGeonames_get_region_by_country($iso='') {
 	return $result;
 }
 function wpGeonames_shortcode($a) {
-	$shortcode = shortcode_atts(array(
+	$s = shortcode_atts(array(
 		'id1' => 'geoCountry',
 		'id2' => 'geoRegion',
 		'id3' => 'geoCity',
@@ -100,6 +106,10 @@ function wpGeonames_shortcode($a) {
 		'nbcity' =>'10',
 		'data' => ''
 		),$a);
+	$shortcode = array();
+	foreach($s as $k=>$v) {
+		$shortcode[$k] = preg_replace("/[^A-Za-z0-9]/", '', strip_tags($v));
+	}
 	if($shortcode['map']) wpGeonames_enqueue_leaflet();
 	$out = '';
 	$geoData = array();

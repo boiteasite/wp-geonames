@@ -688,6 +688,7 @@ function wpGeonames_admin_help() {
 		<li><?php _e('Display the OpenStreetMap (default=0) : map=1', 'wpGeonames'); ?></li>
 		<li><?php _e('OpenStreetMap initial zoom (default=9) : zoom=10', 'wpGeonames'); ?></li>
 	</ul>
+	<p><i><?php _e('Only alphanumeric characters are allowed (az,AZ,09)', 'wpGeonames'); ?></i></p>
 	<p><?php _e('Example : <b>[wp-geonames zoom=12 map=1 id1=ctr id2=reg id3=cit]</b>.', 'wpGeonames'); ?></p>
 	<p><?php _e('You can also adapt the form to your style by changing the <u>templates/wp-geonames_location_taxonomy.php</u> file and moving it to your theme.', 'wpGeonames'); ?></p>
 	<p>Enjoy ! <?php echo convert_smilies(';-)'); ?></p>

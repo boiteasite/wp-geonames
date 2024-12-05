@@ -3,9 +3,9 @@ Contributors: sojahu
 Donate link: https://www.paypal.me/JacquesMalgrange
 Tags: city, geo, data, sql, table, geonames, gps, place
 Requires at least: 3.0.1
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 5.3
-Stable tag: 1.9.0.1
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,7 +167,13 @@ function sugg(f,g){
 
 == Changelog ==
 
-= 1.9 =
+== 1.9.1 =
+05/12/2024
+
+* Fix XSS vulnerability in shortcode attributes
+* Fix translation issue with WP 6.7
+
+ 1.9 =
 18/10/2024 - Fix XSS vulnerability on geoSearch field
 
 = 1.8 =
