@@ -153,12 +153,12 @@ function wpGeonames_admin() {
 			curl_setopt($h, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($h, CURLOPT_CONNECTTIMEOUT, 5);
 			$page1 = curl_exec($h);
-			curl_close($h);
+			if(PHP_VERSION_ID<80000) curl_close($h);
 			$h = curl_init($urlp);
 			curl_setopt($h, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($h, CURLOPT_CONNECTTIMEOUT, 5);
 			$page2 = curl_exec($h);
-			curl_close($h);
+			if(PHP_VERSION_ID<80000) curl_close($h);
 		}
 		else {
 			$page1 = @file_get_contents($urlc);

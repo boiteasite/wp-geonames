@@ -2,22 +2,22 @@
 /*
 Plugin Name: WP GeoNames
 Author: Jacques Malgrange
-Text Domain: wpGeonames
-Domain Path: /lang
 Description: Allows you to insert all or part of the global GeoNames database in your WordPress base.
-Version: 1.9.1
+Version: 1.9.3
 Author URI: https://www.boiteasite.fr
 */
 $a = __('Allows you to insert all or part of the global GeoNames database in your WordPress base.','wpGeonames'); // Description
-$geoVersion = "1.9.1";
+$geoVersion = "1.9.3";
 //
 register_activation_hook( __FILE__, 'wpGeonames_creation_table');
 // LANG (WP 6.7)
 $geoWPLANG = get_site_option('WPLANG'); // WordPress lang (Dashboard/Settings/General/site language => options table WPLANG) - Can be empty or not exists
 if(empty($geoWPLANG)) $geoWPLANG = get_locale();
-if(!empty(WP_LANG_DIR) && file_exists(WP_LANG_DIR.'/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', WP_LANG_DIR.'/wpGeonames-'.$geoWPLANG.'.mo');
-else if(file_exists(WP_CONTENT_DIR.'/languages/plugins/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', WP_CONTENT_DIR.'/languages/plugins/wpGeonames-'.$geoWPLANG.'.mo');
-else if(file_exists(dirname(__FILE__).'/lang/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', dirname(__FILE__).'/lang/wpGeonames-'.$geoWPLANG.'.mo');
+add_action('init', function() use($geoWPLANG) {
+	if(!empty(WP_LANG_DIR) && file_exists(WP_LANG_DIR.'/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', WP_LANG_DIR.'/wpGeonames-'.$geoWPLANG.'.mo');
+	else if(file_exists(WP_CONTENT_DIR.'/languages/plugins/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', WP_CONTENT_DIR.'/languages/plugins/wpGeonames-'.$geoWPLANG.'.mo');
+	else if(file_exists(dirname(__FILE__).'/lang/wpGeonames-'.$geoWPLANG.'.mo')) load_textdomain('wpGeonames', dirname(__FILE__).'/lang/wpGeonames-'.$geoWPLANG.'.mo');
+});
 //
 add_shortcode('wp-geonames', 'wpGeonames_shortcode');
 add_action('wp_ajax_nopriv_geoDataRegion', 'wpGeonames_ajax_geoDataRegion');
