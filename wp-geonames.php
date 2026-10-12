@@ -108,7 +108,7 @@ function wpGeonames_shortcode($a) {
 		),$a);
 	$shortcode = array();
 	foreach($s as $k=>$v) {
-		$shortcode[$k] = preg_replace("/[^A-Za-z0-9]/", '', strip_tags($v));
+		$shortcode[$k] = preg_replace("/[^A-Za-z0-9|]/", '', strip_tags($v));
 	}
 	if($shortcode['map']) wpGeonames_enqueue_leaflet();
 	$out = '';
